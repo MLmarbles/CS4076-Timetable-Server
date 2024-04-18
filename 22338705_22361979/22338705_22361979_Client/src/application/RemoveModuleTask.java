@@ -1,0 +1,39 @@
+package application;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+
+import javafx.concurrent.Task;
+
+public class RemoveModuleTask extends Task<String>{
+    private final String moduleCode;
+
+    public RemoveModuleTask(String moduleCode) {
+        this.moduleCode = moduleCode;
+    }
+
+    protected String call() throws Exception {
+        try {
+            return sendModuleData("REMOVE_MODULE", moduleCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String sendModuleData(String operation, String moduleCode) throws Exception {
+        try (Socket link = new Socket(InetAddress.getLocalHost(), Main.PORT);
+             BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));
+             PrintWriter out = new PrintWriter(link.getOutputStream(), true)) {
+
+            out.println(operation + " " + moduleCode);
+            String response = in.readLine();
+
+            System.out.println("\n* Closing connection... *");
+            return response;
+        }
+    }
+}
